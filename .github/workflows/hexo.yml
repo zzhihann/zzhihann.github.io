@@ -13,14 +13,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # npm install
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-      - run: npm install
-      
       # clone notes
       - uses: actions/checkout@v3
         with:
@@ -30,9 +22,16 @@ jobs:
       
       - name: Copy notes to _posts
         run: find my-notes -type f -name "*.md" -exec cp --path {} source/_posts/ \;
-      
-      - name: Hexo generate
-        run: hexo g
+    
+      # npm install
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - run: |
+          npm install
+          hexo g
         
   deploy:
     needs: build
