@@ -33,6 +33,11 @@ jobs:
           npm install -g hexo
           npm install
           hexo g
+          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./public
         
   deploy:
     needs: build
