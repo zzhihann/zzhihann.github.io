@@ -30,7 +30,8 @@ jobs:
         with:
           node-version: '18.x'
       - run: |
-          npm install -g
+          npm install -g hexo
+          npm install
           hexo g
         
   deploy:
