@@ -5,6 +5,8 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
+  schedule:
+    - cron: "0 20 * * *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -13,6 +15,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
       # clone notes
       - uses: actions/checkout@v3
         with:
@@ -21,10 +26,9 @@ jobs:
           path: my-notes
       
       - name: Copy notes to _posts
-        run: find my-notes -type f -name "*.md" -exec cp --path {} source/_posts/ \;
-    
+        run: mkdir -p ./source/_posts && rm -rf ./source/_posts/* && find my-notes -type f -name "*.md" -exec cp {} ./source/_posts/ \;
+      
       # npm install
-      - uses: actions/checkout@v3
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -33,23 +37,9 @@ jobs:
           npm install -g hexo
           npm install
           hexo g
-          
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: ./public
-        
-  deploy:
-    needs: build
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
-    
-    environment:
-      name: github-pages
-      url: ${{ vars.PAGE_URL }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
